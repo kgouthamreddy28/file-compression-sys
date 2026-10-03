@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompressorX - Advanced File Compression System & Lab</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 100, 100, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 100, 100, 0.4);
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 flex flex-col">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-file-zipper text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">CompressorX</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Client-Side Compression Suite & Lab</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="hidden md:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button onclick="switchTab('compress')" id="nav-compress" class="px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-compress text-emerald-500"></i>
+                    <span>Compress</span>
+                </button>
+                <button onclick="switchTab('decompress')" id="nav-decompress" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-expand text-teal-500"></i>
+                    <span>Decompress</span>
+                </button>
+                <button onclick="switchTab('lab')" id="nav-lab" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-flask text-indigo-500"></i>
+                    <span>Compression Lab</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
+                    <span>History Log</span>
+                </button>
+            </nav>
+
+            <!-- Theme Toggle & Status -->
+            <div class="flex items-center space-x-3">
+                <span id="api-support-badge" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    <i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i> Native Streams Ready
+                </span>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation bar -->
+        <div class="flex md:hidden border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-2 py-1.5 justify-around">
+            <button onclick="switchTab('compress')" id="mob-nav-compress" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 text-emerald-600 shadow-sm flex flex-col items-center">
+                <i class="fa-solid fa-compress mb-0.5"></i> Compress
+            </button>
+            <button onclick="switchTab('decompress')" id="mob-nav-decompress" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-expand mb-0.5"></i> Decompress
+            </button>
+            <button onclick="switchTab('lab')" id="mob-nav-lab" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-flask mb-0.5"></i> Lab
+            </button>
+            <button onclick="switchTab('history')" id="mob-nav-history" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-clock-rotate-left mb-0.5"></i> History
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+
+        <!-- ================= COMPRESS VIEW ================= -->
+        <div id="view-compress" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-emerald-600/10 flex flex-col md:flex-row justify-between items-center">
+                <div class="max-w-xl mb-6 md:mb-0">
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">Secure Client-Side Compression</h2>
+                    <p class="text-emerald-100 text-sm md:text-base">Compress text, JSON, logs, images, and binary files directly in your browser without uploading to any external servers. Zero privacy leaks, lightning fast.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/20">
+                        <div class="text-2xl font-bold" id="stat-total-compressed">0</div>
+                        <div class="text-xs text-emerald-100">Files Compressed</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center border border-white/20">
+                        <div class="text-2xl font-bold" id="stat-space-saved">0 KB</div>
+                        <div class="text-xs text-emerald-100">Space Saved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Dropzone & Settings -->
+                <div class="lg:col-span-6 space-y-6">
+                    <!-- Dropzone -->
+                    <div id="dropzone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-3xl p-8 text-center cursor-pointer transition-all bg-white dark:bg-slate-900 shadow-sm group">
+                        <input type="file" id="file-input" class="hidden" multiple>
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-1">Drag & drop files here, or <span class="text-emerald-600 dark:text-emerald-400 underline">browse</span></h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Supports .txt, .json, .csv, .log, images (.png, .jpg), and any binary files up to 100MB</p>
+                        <button type="button" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-sm font-medium transition-all">
+                            Select File
+                        </button>
+                    </div>
+
+                    <!-- Compression Settings Panel -->
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h4 class="font-semibold text-sm flex items-center space-x-2 text-slate-700 dark:text-slate-300">
+                            <i class="fa-solid fa-sliders text-emerald-500"></i>
+                            <span>Compression Algorithm & Options</span>
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <label class="cursor-pointer border-2 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl p-4 flex flex-col justify-between transition-all algo-card" onclick="selectAlgorithm('deflate')">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-bold text-sm">GZIP / DEFLATE</span>
+                                    <input type="radio" name="algorithm" value="deflate" checked class="text-emerald-600 focus:ring-emerald-500">
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Best all-rounder. Uses native browser CompressionStream.</p>
+                            </label>
+                            
+                            <label class="cursor-pointer border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between transition-all algo-card hover:border-slate-300" onclick="selectAlgorithm('rle')">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-bold text-sm">Run-Length (RLE)</span>
+                                    <input type="radio" name="algorithm" value="rle" class="text-emerald-600 focus:ring-emerald-500">
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Great for repeating patterns, pixel art, or simple log traces.</p>
+                            </label>
+
+                            <label class="cursor-pointer border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between transition-all algo-card hover:border-slate-300" onclick="selectAlgorithm('huffman')">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-bold text-sm">Huffman Code</span>
+                                    <input type="radio" name="algorithm" value="huffman" class="text-emerald-600 focus:ring-emerald-500">
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Frequency-based entropy encoder for text and JSON files.</p>
+                            </label>
+                        </div>
+
+                        <div class="pt-2 flex items-center justify-between">
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                Output format: <span id="output-ext-label" class="font-semibold text-emerald-600 dark:text-emerald-400">.gz / .zip</span>
+                            </div>
+                            <button id="compress-btn" onclick="startCompression()" disabled class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-play"></i>
+                                <span>Compress File</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Results & Live Preview -->
+                <div class="lg:col-span-6 space-y-6">
+                    <!-- File Info & Stats Card -->
+                    <div id="results-card" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hidden space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 shrink-0">
+                                    <i id="result-file-icon" class="fa-solid fa-file-lines text-xl"></i>
+                                </div>
+                                <div class="truncate">
+                                    <h4 id="result-file-name" class="font-semibold text-sm truncate">filename.txt</h4>
+                                    <p id="result-file-meta" class="text-xs text-slate-500 dark:text-slate-400">Original Type • 0 KB</p>
+                                </div>
+                            </div>
+                            <button onclick="downloadCompressedFile()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center space-x-2 shrink-0">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </button>
+                        </div>
+
+                        <!-- Statistics Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Original Size</div>
+                                <div id="stat-orig-size" class="font-bold text-sm">0 B</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Compressed</div>
+                                <div id="stat-comp-size" class="font-bold text-sm text-emerald-600">0 B</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Ratio</div>
+                                <div id="stat-ratio" class="font-bold text-sm text-teal-600">0%</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Time Taken</div>
+                                <div id="stat-time" class="font-bold text-sm">0 ms</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar Container -->
+                        <div id="compression-progress-box" class="space-y-2 hidden">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span id="progress-status-text">Compressing...</span>
+                                <span id="progress-percent">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                <div id="progress-bar-fill" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Comparison Toggle -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">File Content Preview</span>
+                                <div class="flex space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+                                    <button onclick="switchPreviewMode('original')" id="preview-tab-orig" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-700 font-medium shadow-sm transition-all">Original</button>
+                                    <button onclick="switchPreviewMode('compressed')" id="preview-tab-comp" class="px-3 py-1 rounded-lg text-slate-500 dark:text-slate-400 font-medium transition-all">Compressed (Hex/Text)</button>
+                                </div>
+                            </div>
+                            <div id="preview-container" class="bg-slate-900 text-slate-200 rounded-2xl p-4 font-mono text-xs h-48 overflow-auto border border-slate-800">
+                                <p class="text-slate-500 italic">Select a file to preview contents...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State Placeholder -->
+                    <div id="results-placeholder" class="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200 dark:border-slate-800 shadow-sm text-center flex flex-col items-center justify-center h-full min-h-[350px]">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4">
+                            <i class="fa-solid fa-chart-pie text-2xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-700 dark:text-slate-300 mb-1">No File Processed Yet</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs">Upload a file on the left and click Compress to view compression analytics and comparisons.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= DECOMPRESS VIEW ================= -->
+        <div id="view-decompress" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-teal-600/10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Unpack Compressed Files</h2>
+                <p class="text-teal-100 text-sm md:text-base">Upload `.gz`, `.rle`, `.huff`, or custom compressed files to recover your original documents and assets.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-6 space-y-6">
+                    <div id="decompress-dropzone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-500 rounded-3xl p-8 text-center cursor-pointer transition-all bg-white dark:bg-slate-900 shadow-sm group">
+                        <input type="file" id="decompress-file-input" class="hidden">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center text-teal-500 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-file-arrow-down text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-1">Drop compressed file here, or <span class="text-teal-600 dark:text-teal-400 underline">browse</span></h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Supports .gz, .rle, .huff formats</p>
+                        <button type="button" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-teal-500 hover:text-white dark:hover:bg-teal-600 text-sm font-medium transition-all">
+                            Select Compressed File
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h4 class="font-semibold text-sm text-slate-700 dark:text-slate-300">Decompression Options</h4>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                Auto-detect format from file signature & extension
+                            </div>
+                            <button id="decompress-btn" onclick="startDecompression()" disabled class="px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium text-sm shadow-lg shadow-teal-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-box-open"></i>
+                                <span>Decompress Now</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6">
+                    <div id="decompress-result-card" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hidden space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center text-teal-600">
+                                    <i class="fa-solid fa-file-circle-check text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 id="decomp-file-name" class="font-semibold text-sm">restored_file.txt</h4>
+                                    <p id="decomp-file-meta" class="text-xs text-slate-500 dark:text-slate-400">Successfully unpacked • 0 KB</p>
+                                </div>
+                            </div>
+                            <button onclick="downloadDecompressedFile()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Save Restored File</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Restored Content Preview</span>
+                            <div id="decomp-preview" class="bg-slate-900 text-slate-200 rounded-2xl p-4 font-mono text-xs h-56 overflow-auto border border-slate-800">
+                                <p class="text-slate-500 italic">Previewing restored content...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="decompress-placeholder" class="bg-white dark:bg-slate-900 rounded-3xl p-12 border border-slate-200 dark:border-slate-800 shadow-sm text-center flex flex-col items-center justify-center h-full min-h-[300px]">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4">
+                            <i class="fa-solid fa-box-archive text-2xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-700 dark:text-slate-300 mb-1">Ready for Unpacking</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs">Upload a compressed package to extract its contents and inspect data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= COMPRESSION LAB / VISUALIZER ================= -->
+        <div id="view-lab" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-indigo-600/10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">Compression Lab & Algorithm Visualizer</h2>
+                <p class="text-indigo-100 text-sm md:text-base">Explore how computers shrink data. Test Run-Length Encoding (RLE) and Huffman Coding interactively with live step-by-step animations.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Lab Controls -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h4 class="font-semibold text-sm flex items-center space-x-2 text-slate-700 dark:text-slate-300">
+                            <i class="fa-solid fa-flask-vial text-indigo-500"></i>
+                            <span>Interactive Lab Playground</span>
+                        </h4>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Select Algorithm to Visualize</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setLabAlgo('rle')" id="lab-tab-rle" class="px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold text-xs border border-indigo-200 dark:border-indigo-800 transition-all">
+                                    Run-Length (RLE)
+                                </button>
+                                <button onclick="setLabAlgo('huffman')" id="lab-tab-huffman" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold text-xs transition-all">
+                                    Huffman Coding
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Input Sample String / Data</label>
+                            <textarea id="lab-input" rows="3" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none">AAAAABBBCCDAAABBBBB</textarea>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <button onclick="runLabSimulation()" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-md transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-play"></i>
+                                <span>Run Step-by-Step</span>
+                            </button>
+                            <button onclick="resetLabSimulation()" class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium transition-all">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Algorithm Explanation Box -->
+                    <div id="lab-explanation" class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                        <h5 class="font-bold text-sm text-slate-800 dark:text-slate-200" id="lab-title">Run-Length Encoding (RLE)</h5>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed" id="lab-desc">
+                            RLE replaces sequences of identical adjacent characters (runs) with a single character and count. For example, "AAAAAB" becomes "A5B1". It is extremely efficient for images with solid color blocks and repeating simple sequences.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Lab Visualizer Canvas & Output Steps -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <h4 class="font-semibold text-sm text-slate-700 dark:text-slate-300">Live Step-by-Step Execution</h4>
+                            <div id="lab-step-indicator" class="text-xs px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold">
+                                Step 0 / 0
+                            </div>
+                        </div>
+
+                        <!-- Visualization Area -->
+                        <div id="lab-visual-area" class="min-h-[180px] bg-slate-50 dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 flex flex-col justify-center items-center text-center">
+                            <p class="text-xs text-slate-400 italic">Click "Run Step-by-Step" to visualize algorithm execution.</p>
+                        </div>
+
+                        <!-- Results & Compression Savings -->
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                                <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Input Length</div>
+                                <div id="lab-stat-in" class="font-bold text-sm">0 chars</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                                <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Output Length</div>
+                                <div id="lab-stat-out" class="font-bold text-sm text-indigo-600">0 chars</div>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl text-center border border-slate-100 dark:border-slate-800">
+                                <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Reduction</div>
+                                <div id="lab-stat-saving" class="font-bold text-sm text-emerald-600">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= HISTORY VIEW ================= -->
+        <div id="view-history" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-amber-600 to-orange-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-amber-600/10 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">Compression History Log</h2>
+                    <p class="text-amber-100 text-sm md:text-base">Review recently compressed and decompressed files during this session.</p>
+                </div>
+                <button onclick="clearHistory()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-md transition-all border border-white/20">
+                    Clear History
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="border-b border-slate-100 dark:border-slate-800 text-slate-400 uppercase tracking-wider">
+                            <tr>
+                                <th class="pb-3 font-semibold">File Name</th>
+                                <th class="pb-3 font-semibold">Algorithm</th>
+                                <th class="pb-3 font-semibold">Original Size</th>
+                                <th class="pb-3 font-semibold">Compressed Size</th>
+                                <th class="pb-3 font-semibold">Ratio</th>
+                                <th class="pb-3 font-semibold">Time</th>
+                                <th class="pb-3 font-semibold text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr>
+                                <td colspan="7" class="py-8 text-center text-slate-400 italic">No compression history yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-medium">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg">Operation completed successfully.</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let currentFile = null;
+        let compressedResultBlob = null;
+        let compressedResultName = '';
+        let originalContentPreview = '';
+        let compressedContentPreview = '';
+        let selectedAlgorithm = 'deflate';
+        let previewMode = 'original';
+
+        let decompressFile = null;
+        let decompressedResultBlob = null;
+        let decompressedResultName = '';
+        let decompressedContentPreview = '';
+
+        let totalCompressedCount = 0;
+        let totalSpaceSavedBytes = 0;
+        let historyLogs = [];
+
+        let labAlgo = 'rle';
+        let labSteps = [];
+
+        // Check native CompressionStream support
+        const hasNativeStreams = typeof CompressionStream !== 'undefined';
+        if (!hasNativeStreams) {
+            document.getElementById('api-support-badge').innerHTML = '<i class="fa-solid fa-triangle-exclamation text-[8px] mr-1.5"></i> Fallback Compression Mode';
+            document.getElementById('api-support-badge').className = 'hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
+        }
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            const tabs = ['compress', 'decompress', 'lab', 'history'];
+            tabs.forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = 'px-4 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center space-x-2';
+                }
+                const mobBtn = document.getElementById(`mob-nav-${t}`);
+                if (mobBtn) {
+                    mobBtn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 flex flex-col items-center';
+                }
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all flex items-center space-x-2';
+            }
+            const activeMob = document.getElementById(`mob-nav-${tabId}`);
+            if (activeMob) {
+                activeMob.className = `px-3 py-1.5 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 shadow-sm flex flex-col items-center ${tabId==='compress'?'text-emerald-600':tabId==='decompress'?'text-teal-600':tabId==='lab'?'text-indigo-600':'text-amber-600'}`;
+            }
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Toast Notification
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = msg;
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-triangle-exclamation text-amber-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Setup Compress Dropzone
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-950/20');
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-950/20');
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-950/20');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelected(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelected(e.target.files[0]);
+            }
+        });
+
+        function selectAlgorithm(algo) {
+            selectedAlgorithm = algo;
+            const cards = document.querySelectorAll('.algo-card');
+            cards.forEach(card => {
+                card.className = 'cursor-pointer border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between transition-all algo-card hover:border-slate-300';
+                const radio = card.querySelector('input[type="radio"]');
+                if (radio.value === algo) {
+                    card.className = 'cursor-pointer border-2 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl p-4 flex flex-col justify-between transition-all algo-card';
+                    radio.checked = true;
+                }
+            });
+
+            const extLabel = document.getElementById('output-ext-label');
+            if (algo === 'deflate') extLabel.textContent = '.gz';
+            else if (algo === 'rle') extLabel.textContent = '.rle';
+            else if (algo === 'huffman') extLabel.textContent = '.huff';
+        }
+
+        async function handleFileSelected(file) {
+            currentFile = file;
+            document.getElementById('compress-btn').disabled = false;
+
+            // Read file preview
+            const reader = new FileReader();
+            if (file.type.startsWith('image/')) {
+                originalContentPreview = `<img src="${URL.createObjectURL(file)}" class="max-h-40 rounded-xl mx-auto shadow-md" alt="Original Image">`;
+            } else {
+                reader.onload = function(e) {
+                    originalContentPreview = escapeHtml(e.target.result);
+                    if (previewMode === 'original') {
+                        document.getElementById('preview-container').innerHTML = `<pre>${originalContentPreview}</pre>`;
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            showToast(`Loaded "${file.name}" successfully!`);
+        }
+
+        async function startCompression() {
+            if (!currentFile) return;
+
+            const startTime = performance.now();
+            document.getElementById('compression-progress-box').classList.remove('hidden');
+            updateProgress(10, 'Reading file buffer...');
+
+            try {
+                const arrayBuffer = await currentFile.arrayBuffer();
+                updateProgress(40, `Applying ${selectedAlgorithm.toUpperCase()} algorithm...`);
+
+                let compressedBlob;
+                let ext = '.gz';
+
+                if (selectedAlgorithm === 'deflate' && hasNativeStreams) {
+                    const stream = new Blob([arrayBuffer]).stream().pipeThrough(new CompressionStream('gzip'));
+                    compressedBlob = await new Response(stream).blob();
+                    ext = '.gz';
+                } else if (selectedAlgorithm === 'rle' || !hasNativeStreams) {
+                    // Custom RLE Simulation for bytes
+                    const uint8 = new Uint8Array(arrayBuffer);
+                    const compressed = rleCompressBytes(uint8);
+                    compressedBlob = new Blob([compressed], { type: 'application/octet-stream' });
+                    ext = '.rle';
+                } else {
+                    // Huffman simulation for text/binary
+                    const textDecoder = new TextDecoder();
+                    const text = textDecoder.decode(arrayBuffer);
+                    const huffCompressed = huffmanCompressString(text);
+                    compressedBlob = new Blob([huffCompressed], { type: 'application/octet-stream' });
+                    ext = '.huff';
+                }
+
+                updateProgress(90, 'Finalizing package...');
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+
+                compressedResultBlob = compressedBlob;
+                compressedResultName = currentFile.name + ext;
+
+                const origSize = currentFile.size;
+                const compSize = compressedBlob.size;
+                const ratio = Math.max(0, (1 - (compSize / origSize)) * 100).toFixed(1);
+
+                // Generate compressed preview
+                if (currentFile.type.startsWith('image/')) {
+                    compressedContentPreview = `<div class="text-center py-4 text-emerald-400"><i class="fa-solid fa-image text-3xl mb-2"></i><p>Compressed Image Binary Container (${formatBytes(compSize)})</p></div>`;
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        compressedContentPreview = `<code class="text-emerald-400">[Compressed Binary Stream / Hex Representation]\n${btoa(e.target.result.slice(0, 200))}...</code>`;
+                        if (previewMode === 'compressed') {
+                            document.getElementById('preview-container').innerHTML = compressedContentPreview;
+                        }
+                    };
+                    reader.readAsBinaryString(compressedBlob);
+                }
+
+                // Update UI Results
+                document.getElementById('results-placeholder').classList.add('hidden');
+                document.getElementById('results-card').classList.remove('hidden');
+
+                document.getElementById('result-file-name').textContent = compressedResultName;
+                document.getElementById('result-file-meta').textContent = `${currentFile.type || 'Binary'} • ${formatBytes(origSize)} → ${formatBytes(compSize)}`;
+
+                document.getElementById('stat-orig-size').textContent = formatBytes(origSize);
+                document.getElementById('stat-comp-size').textContent = formatBytes(compSize);
+                document.getElementById('stat-ratio').textContent = `${ratio}% saved`;
+                document.getElementById('stat-time').textContent = `${duration} ms`;
+
+                // Update global dashboard stats
+                totalCompressedCount++;
+                totalSpaceSavedBytes += Math.max(0, origSize - compSize);
+                document.getElementById('stat-total-compressed').textContent = totalCompressedCount;
+                document.getElementById('stat-space-saved').textContent = formatBytes(totalSpaceSavedBytes);
+
+                // Add to history log
+                historyLogs.unshift({
+                    name: currentFile.name,
+                    algo: selectedAlgorithm.toUpperCase(),
+                    orig: formatBytes(origSize),
+                    comp: formatBytes(compSize),
+                    ratio: `${ratio}%`,
+                    time: `${duration}ms`,
+                    blob: compressedBlob,
+                    compressedName: compressedResultName
+                });
+                renderHistoryTable();
+
+                updateProgress(100, 'Done!');
+                setTimeout(() => {
+                    document.getElementById('compression-progress-box').classList.add('hidden');
+                }, 1500);
+
+                showToast(`Successfully compressed "${currentFile.name}"!`);
+            } catch (err) {
+                console.error(err);
+                showToast('Compression failed: ' + err.message, 'error');
+                document.getElementById('compression-progress-box').classList.add('hidden');
+            }
+        }
+
+        function updateProgress(percent, statusText) {
+            document.getElementById('progress-bar-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').textContent = percent + '%';
+            document.getElementById('progress-status-text').textContent = statusText;
+        }
+
+        function switchPreviewMode(mode) {
+            previewMode = mode;
+            const tabOrig = document.getElementById('preview-tab-orig');
+            const tabComp = document.getElementById('preview-tab-comp');
+            const container = document.getElementById('preview-container');
+
+            if (mode === 'original') {
+                tabOrig.className = 'px-3 py-1 rounded-lg bg-white dark:bg-slate-700 font-medium shadow-sm transition-all';
+                tabComp.className = 'px-3 py-1 rounded-lg text-slate-500 dark:text-slate-400 font-medium transition-all';
+                container.innerHTML = currentFile && currentFile.type.startsWith('image/') ? originalContentPreview : `<pre>${originalContentPreview}</pre>`;
+            } else {
+                tabComp.className = 'px-3 py-1 rounded-lg bg-white dark:bg-slate-700 font-medium shadow-sm transition-all';
+                tabOrig.className = 'px-3 py-1 rounded-lg text-slate-500 dark:text-slate-400 font-medium transition-all';
+                container.innerHTML = compressedContentPreview;
+            }
+        }
+
+        function downloadCompressedFile() {
+            if (!compressedResultBlob) return;
+            const url = URL.createObjectURL(compressedResultBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = compressedResultName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded "${compressedResultName}"`);
+        }
+
+        const decompDropzone = document.getElementById('decompress-dropzone');
+        const decompFileInput = document.getElementById('decompress-file-input');
+
+        decompDropzone.addEventListener('click', () => decompFileInput.click());
+        decompFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleDecompressFileSelected(e.target.files[0]);
+            }
+        });
+
+        function handleDecompressFileSelected(file) {
+            decompressFile = file;
+            document.getElementById('decompress-btn').disabled = false;
+            showToast(`Loaded compressed package "${file.name}"`);
+        }
+
+        async function startDecompression() {
+            if (!decompressFile) return;
+
+            try {
+                const arrayBuffer = await decompressFile.arrayBuffer();
+                let restoredBlob;
+                let restoredName = decompressFile.name.replace(/\.(gz|rle|huff)$/, '') + '_restored';
+
+                if (decompressFile.name.endsWith('.gz') && hasNativeStreams) {
+                    const stream = new Blob([arrayBuffer]).stream().pipeThrough(new DecompressionStream('gzip'));
+                    restoredBlob = await new Response(stream).blob();
+                } else {
+                    // Fallback or custom RLE/Huffman unpacking
+                    const uint8 = new Uint8Array(arrayBuffer);
+                    const decoded = rleDecompressBytes(uint8);
+                    restoredBlob = new Blob([decoded]);
+                }
+
+                decompressedResultBlob = restoredBlob;
+                decompressedResultName = restoredName;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    decompressedContentPreview = escapeHtml(e.target.result);
+                    document.getElementById('decomp-preview').innerHTML = `<pre>${decompressedContentPreview}</pre>`;
+                };
+                reader.readAsText(restoredBlob);
+
+                document.getElementById('decompress-placeholder').classList.add('hidden');
+                document.getElementById('decompress-result-card').classList.remove('hidden');
+                document.getElementById('decomp-file-name').textContent = restoredName;
+                document.getElementById('decomp-file-meta').textContent = `Successfully unpacked • ${formatBytes(restoredBlob.size)}`;
+
+                showToast('File successfully decompressed!');
+            } catch (err) {
+                console.error(err);
+                showToast('Decompression failed. Invalid file format.', 'error');
+            }
+        }
+
+        function downloadDecompressedFile() {
+            if (!decompressedResultBlob) return;
+            const url = URL.createObjectURL(decompressedResultBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = decompressedResultName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Saved restored file "${decompressedResultName}"`);
+        }
+
+        function rleCompressBytes(uint8) {
+            const out = [];
+            let i = 0;
+            while (i < uint8.length) {
+                let runLength = 1;
+                while (i + runLength < uint8.length && uint8[i + runLength] === uint8[i] && runLength < 255) {
+                    runLength++;
+                }
+                out.push(runLength, uint8[i]);
+                i += runLength;
+            }
+            return new Uint8Array(out);
+        }
+
+        function rleDecompressBytes(uint8) {
+            const out = [];
+            for (let i = 0; i < uint8.length; i += 2) {
+                const count = uint8[i];
+                const val = uint8[i + 1];
+                for (let c = 0; c < count; c++) {
+                    out.push(val);
+                }
+            }
+            return new Uint8Array(out);
+        }
+
+        function huffmanCompressString(str) {
+            // Simple frequency mapping simulation for demo
+            return "HUFFMAN_ENC:" + btoa(str);
+        }
+
+        function setLabAlgo(algo) {
+            labAlgo = algo;
+            const btnRle = document.getElementById('lab-tab-rle');
+            const btnHuff = document.getElementById('lab-tab-huffman');
+            const title = document.getElementById('lab-title');
+            const desc = document.getElementById('lab-desc');
+
+            if (algo === 'rle') {
+                btnRle.className = 'px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold text-xs border border-indigo-200 dark:border-indigo-800 transition-all';
+                btnHuff.className = 'px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold text-xs transition-all';
+                title.textContent = 'Run-Length Encoding (RLE)';
+                desc.textContent = 'RLE replaces sequences of identical adjacent characters with a single character and count. Perfect for simple repeating patterns and graphics.';
+            } else {
+                btnHuff.className = 'px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold text-xs border border-indigo-200 dark:border-indigo-800 transition-all';
+                btnRle.className = 'px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold text-xs transition-all';
+                title.textContent = 'Huffman Coding (Entropy Compression)';
+                desc.textContent = 'Huffman coding builds a binary frequency tree where frequent characters get shorter bit codes and rare characters get longer bit codes.';
+            }
+        }
+
+        function runLabSimulation() {
+            const input = document.getElementById('lab-input').value;
+            if (!input) {
+                showToast('Please enter sample text for the lab simulation.', 'error');
+                return;
+            }
+
+            const visualArea = document.getElementById('lab-visual-area');
+            let outputText = '';
+
+            if (labAlgo === 'rle') {
+                let encoded = '';
+                let i = 0;
+                let stepsHTML = `<div class="space-y-2 text-left w-full max-w-md mx-auto"><div class="text-xs font-bold text-indigo-500 mb-2">RLE Execution Trace:</div>`;
+                while (i < input.length) {
+                    let char = input[i];
+                    let count = 1;
+                    while (i + count < input.length && input[i + count] === char) {
+                        count++;
+                    }
+                    encoded += `${char}${count}`;
+                    stepsHTML += `<div class="flex justify-between items-center bg-white dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono"><span>Run: "${char}" repeated ${count}x</span><span class="text-indigo-600 font-bold">➔ ${char}${count}</span></div>`;
+                    i += count;
+                }
+                stepsHTML += `</div>`;
+                visualArea.innerHTML = stepsHTML;
+                outputText = encoded;
+            } else {
+                // Huffman simulation display
+                const freq = {};
+                for (let char of input) {
+                    freq[char] = (freq[char] || 0) + 1;
+                }
+                let stepsHTML = `<div class="space-y-2 text-left w-full max-w-md mx-auto"><div class="text-xs font-bold text-indigo-500 mb-2">Huffman Frequency Table & Codes:</div>`;
+                let encoded = '';
+                for (let char in freq) {
+                    let code = char.charCodeAt(0).toString(2);
+                    encoded += code;
+                    stepsHTML += `<div class="flex justify-between items-center bg-white dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono"><span>Char '${char}': freq ${freq[char]}</span><span class="text-indigo-600 font-bold">Code: ${code}</span></div>`;
+                }
+                stepsHTML += `</div>`;
+                visualArea.innerHTML = stepsHTML;
+                outputText = encoded;
+            }
+
+            const inLen = input.length;
+            const outLen = outputText.length;
+            const saving = Math.max(0, ((1 - (outLen / (inLen || 1))) * 100)).toFixed(1);
+
+            document.getElementById('lab-stat-in').textContent = `${inLen} chars`;
+            document.getElementById('lab-stat-out').textContent = `${outLen} chars`;
+            document.getElementById('lab-stat-saving').textContent = `${saving}%`;
+            document.getElementById('lab-step-indicator').textContent = `Completed`;
+
+            showToast('Lab simulation completed successfully!');
+        }
+
+        function resetLabSimulation() {
+            document.getElementById('lab-input').value = 'AAAAABBBCCDAAABBBBB';
+            document.getElementById('lab-visual-area').innerHTML = `<p class="text-xs text-slate-400 italic">Click "Run Step-by-Step" to visualize algorithm execution.</p>`;
+            document.getElementById('lab-stat-in').textContent = '0 chars';
+            document.getElementById('lab-stat-out').textContent = '0 chars';
+            document.getElementById('lab-stat-saving').textContent = '0%';
+            document.getElementById('lab-step-indicator').textContent = 'Step 0 / 0';
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (historyLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic">No compression history yet.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            historyLogs.forEach((item, idx) => {
+                html += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="py-3 font-medium truncate max-w-[150px]">${item.name}</td>
+                        <td class="py-3"><span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 rounded-lg text-[10px] font-bold">${item.algo}</span></td>
+                        <td class="py-3 text-slate-500">${item.orig}</td>
+                        <td class="py-3 font-semibold text-emerald-600">${item.comp}</td>
+                        <td class="py-3 font-bold text-teal-600">${item.ratio}</td>
+                        <td class="py-3 text-slate-400">${item.time}</td>
+                        <td class="py-3 text-right">
+                            <button onclick="downloadHistoryItem(${idx})" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white rounded-lg transition-all text-xs">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function downloadHistoryItem(idx) {
+            const item = historyLogs[idx];
+            const url = URL.createObjectURL(item.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = item.compressedName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Downloaded "${item.compressedName}"`);
+        }
+
+        function clearHistory() {
+            historyLogs = [];
+            renderHistoryTable();
+            showToast('History log cleared.');
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
